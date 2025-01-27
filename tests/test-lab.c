@@ -242,6 +242,105 @@ void test_notInList(void)
   free(data);
 }
 
+void test_addMultipleElements(void) {
+    list_t *list = list_init(destroy_data, compare_to);
+    for (int i = 0; i < 5; i++) {
+        int *data = (int *)malloc(sizeof(int));
+        *data = i;
+        list_add(list, data);
+    }
+    TEST_ASSERT_TRUE(list->size == 5);
+
+    node_t *curr = list->head->next;
+    for (int i = 4; i >= 0; i--) {
+        TEST_ASSERT_TRUE(*((int *)curr->data) == i);
+        curr = curr->next;
+    }
+
+    list_destroy(&list);
+}
+
+void test_addToEnd(void) {
+    list_t *list = list_init(destroy_data, compare_to);
+    for (int i = 0; i < 5; i++) {
+        int *data = (int *)malloc(sizeof(int));
+        *data = i;
+        list_add(list, data);
+    }
+    TEST_ASSERT_TRUE(list->size == 5);
+
+    node_t *curr = list->head->prev;
+    for (int i = 0; i < 5; i++) {
+        TEST_ASSERT_TRUE(*((int *)curr->data) == i);
+        curr = curr->prev;
+    }
+
+    list_destroy(&list);
+}
+
+void test_removeMiddleElement(void) {
+    populate_list();
+    int *rval = (int *)list_remove_index(lst_, 2);
+    TEST_ASSERT_TRUE(lst_->size == 4);
+    TEST_ASSERT_TRUE(*rval == 2);
+    free(rval);
+
+    node_t *curr = lst_->head->next;
+    // List should be 4->3->1->0
+    int expected[] = {4, 3, 1, 0};
+    for (int i = 0; i < 4; i++) {
+        TEST_ASSERT_TRUE(*((int *)curr->data) == expected[i]);
+        curr = curr->next;
+    }
+}
+
+void test_addRemoveAlternately(void) {
+    list_t *list = list_init(destroy_data, compare_to);
+    for (int i = 0; i < 5; i++) {
+        int *data = (int *)malloc(sizeof(int));
+        *data = i;
+        list_add(list, data);
+        int *rval = (int *)list_remove_index(list, 0);
+        TEST_ASSERT_TRUE(*rval == i);
+        free(rval);
+    }
+    TEST_ASSERT_TRUE(list->size == 0);
+    list_destroy(&list);
+}
+
+void test_clearList(void) {
+    populate_list();
+    for (int i = 0; i < 5; i++) {
+        int *rval = (int *)list_remove_index(lst_, 0);
+        free(rval);
+    }
+    TEST_ASSERT_TRUE(lst_->size == 0);
+    TEST_ASSERT_TRUE(lst_->head->next == lst_->head);
+    TEST_ASSERT_TRUE(lst_->head->prev == lst_->head);
+}
+
+void test_addAfterClear(void) {
+    populate_list();
+    for (int i = 0; i < 5; i++) {
+        int *rval = (int *)list_remove_index(lst_, 0);
+        free(rval);
+    }
+    TEST_ASSERT_TRUE(lst_->size == 0);
+
+    for (int i = 5; i < 10; i++) {
+        int *data = (int *)malloc(sizeof(int));
+        *data = i;
+        list_add(lst_, data);
+    }
+    TEST_ASSERT_TRUE(lst_->size == 5);
+
+    node_t *curr = lst_->head->next;
+    for (int i = 9; i >= 5; i--) {
+        TEST_ASSERT_TRUE(*((int *)curr->data) == i);
+        curr = curr->next;
+    }
+}
+
 int main(void) {
   UNITY_BEGIN();
   RUN_TEST(test_create_destroy);
@@ -255,5 +354,11 @@ int main(void) {
   RUN_TEST(test_indexOf0);
   RUN_TEST(test_indexOf3);
   RUN_TEST(test_notInList);
+  RUN_TEST(test_addMultipleElements);
+  RUN_TEST(test_addToEnd);
+  RUN_TEST(test_removeMiddleElement);
+  RUN_TEST(test_addRemoveAlternately);
+  RUN_TEST(test_clearList);
+  RUN_TEST(test_addAfterClear);
   return UNITY_END();
 }
