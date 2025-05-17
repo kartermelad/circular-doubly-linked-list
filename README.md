@@ -1,8 +1,6 @@
-# Project #1: Circular Doubly Linked List
+# Circular Doubly Linked List
 
 * Author: Karter Melad
-* Class: CS452 Section #001
-* Semester: Spring 2025
 
 ## Overview
 
